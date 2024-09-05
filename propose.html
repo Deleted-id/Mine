@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 100px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1eace9;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>I like you, do you also?</h1>
+    <button onclick="askForProposal()">Click here to answer</button>
+
+    <div id="message"></div>
+
+    <script>
+        async function askForProposal() {
+            const answer = prompt("Do You Like ME? (Yes/No)");
+
+            const messageElement = document.getElementById("message");
+
+            if (!answer) {
+                messageElement.textContent = "Answer Please....";
+                messageElement.style.color = "orange";
+                return;
+            }
+
+            // Send answer to backend
+            try {
+                const response = await fetch('http://localhost:3000/submit-response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ answer: answer })
+                });
+
+                const data = await response.json();
+                console.log('Response from server:', data); // Debug response
+
+                messageElement.textContent = data.message;
+
+                if (data.message.includes("Yay")) {
+                    messageElement.style.color = "green";
+                } else if (data.message.includes("Oh no")) {
+                    messageElement.style.color = "red";
+                } else {
+                    messageElement.style.color = "orange";
+                }
+
+            } catch (error) {
+                messageElement.textContent = "Error connecting to server.";
+                messageElement.style.color = "red";
+                console.error('Error:', error); // Debug any fetch errors
+            }
+        }
+    </script>
+
+</body>
+</html>
